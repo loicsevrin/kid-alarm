@@ -16,7 +16,7 @@
 
 #include <SPI.h>
 
-#include "../simba.h"
+#include "simba.h"
 
 // ----------------------------
 // Additional Libraries - each one of these will need to be installed.
