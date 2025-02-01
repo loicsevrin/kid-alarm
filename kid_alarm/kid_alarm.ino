@@ -75,17 +75,50 @@ TFT_eSPI tft = TFT_eSPI();
 
 TFT_eSPI_Button key[6];
 
-void setup() {
-  Serial.begin(115200);
+void display_awake() {
+  tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
+}
 
-  tft.init();
-  tft.setRotation(0); //This is the display in landscape
-  #if 0
+void display_asleep() {
+  tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
+}
+
+
+void update_screen() {
+
+  time_t cet = timeClient.getEpochTime();
+
+  int day = timeClient.getDay()%7;
+  int hours = timeClient.getHours();
+  int minutes = timeClient.getMinutes();
+  float time = ((float) hours) + ((float) minutes) / 100.0;
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
-  
-  tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
-  tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
+  if(day>=1 || day<=4) { // monday to thursday
+    if (time > 6.50 && time < 19.45) {
+      display_awake();      
+    } else {
+      display_asleep();
+    }
+  } else if(day == 0) { // sunday
+    if (time > 7.30 && time < 19.45) {
+      display_awake();      
+    } else {
+      display_asleep();
+    }  
+  } else if(day == 5) { // friday
+    if (time > 6.50 && time < 20.15) {
+      display_awake();      
+    } else {
+      display_asleep();
+    }  
+  } else if(day == 6) { // saturday
+    if (time > 7.30 && time < 20.15) {
+      display_awake();      
+    } else {
+      display_asleep();
+    }  
+  }
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextSize(3);
@@ -94,10 +127,19 @@ void setup() {
   int line_height = 30;
   tft.drawString("THIBAULT", SCREEN_W/2, y, 1); // Left Aligned
   y += line_height;
-  tft.drawString("SAMEDI", SCREEN_W/2, y, 1); // Left Aligned
+  char *days[] = {"DIMANCHE", "LUNDI", "MARDI", "MERCREDI", "JEUDI","VENDREDI","SAMEDI"};
+  tft.drawString(days[timeClient.getDay()%7], SCREEN_W/2, y, 1); // Left Aligned
   y += line_height;
-  tft.drawString("14:50", SCREEN_W/2, y, 1); // Left Aligned
-  #endif
+  char time_str[10];
+  sprintf(time_str, "%02d:%02d", timeClient.getHours(), timeClient.getMinutes());
+  tft.drawString(time_str, SCREEN_W/2, y, 1); // Left Aligned
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  tft.init();
+  tft.setRotation(0); //This is the display in landscape
 
   // Connect to WPA/WPA2 network:
   Serial.println("Attempting to connect to WPA SSID: ");
@@ -127,18 +169,7 @@ void loop() {
 
   Serial.println(timeClient.getFormattedTime());
 
-  time_t cet = timeClient.getEpochTime();
+  update_screen();
 
-  // int day_of_week = ((cet / (3600*24)) + 4) % 7;
-  Serial.println("day");
-  Serial.println(timeClient.getDay());
-
-  Serial.println("hour");
-  Serial.println(timeClient.getHours());
-
-  Serial.println("minutes");
-  Serial.println(timeClient.getMinutes());
-
-
-  delay(5000);
+  delay(20*1000);
 }
