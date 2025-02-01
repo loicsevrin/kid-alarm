@@ -6,7 +6,8 @@ import imageio.v3 as iio
 filename = "pumbaa_hat"
 
 # img_src = iio.imread(uri=filename+".png")
-img_src = iio.imread(uri=filename+"_200.jpg")
+# img_src = iio.imread(uri=filename+"_200.jpg")
+img_src = iio.imread(uri=filename+"_150.jpg")
 
 print(img_src.shape)
 

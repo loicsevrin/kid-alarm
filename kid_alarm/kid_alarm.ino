@@ -50,6 +50,9 @@
 #define XPT2046_CS 33
 // ----------------------------
 
+#define SCREEN_W 240
+#define SCREEN_H 320
+
 XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
 
 TFT_eSPI tft = TFT_eSPI();
@@ -64,57 +67,23 @@ void setup() {
   
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
+  
+
+  tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
+  tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  int x = 5;
-  int y = 10;
-  int fontNum = 2; 
-  tft.drawString("THIBAULT", x, y, fontNum); // Left Aligned
-  x = 320 /2;
-  y += 16;
-  tft.setTextColor(TFT_BLUE, TFT_BLACK);
-  tft.drawCentreString("NOEMIE", x, y, fontNum);
-
-  #define SIZE 2000 
-  uint8_t bitmap[SIZE];
-
-  // rouge bleu rouge bleu changement tous les 5 pixels
-  // for(int i = 0; i<SIZE-2; i+=2) {
-  //   bitmap[i] = 0xE0;
-  //   bitmap[i+1] = 0x0F;
-  // }
-
- 
-  // for(int i = 0; i<SIZE-3; i+=3) {
-  //   bitmap[i] = 0xE0;
-  //   bitmap[i+1] = 0x0F;
-  //   bitmap[i+2] = 0xE0;
-  // }
-
-  for(int i = 0; i<SIZE-3; i+=3) {
-    bitmap[i] = 0b00011000;
-    bitmap[i+1] = 0b00011000;
-    bitmap[i+2] = 0b00011000;
-  }
-
-  //tft.drawBitmap( 10, 10, bitmap, 200, 1, 0b1111100000000000, 0b0000000000011111);
-
-  #define SIZE_16 2000 
-  uint16_t image_16[SIZE_16];
-
-  for(int i = 0; i<SIZE_16-3; i+=3) {
-    image_16[i] = 0x1F << 11;
-    image_16[i+1] = 0x1F << 5;
-    image_16[i+2] = 0x1F << 0;
-  }
+  tft.setTextSize(3);
+  tft.setTextDatum(BC_DATUM);
+  int y = 250;
+  int line_height = 30;
+  tft.drawString("THIBAULT", SCREEN_W/2, y, 1); // Left Aligned
+  y += line_height;
+  tft.drawString("SAMEDI", SCREEN_W/2, y, 1); // Left Aligned
+  y += line_height;
+  tft.drawString("14:50", SCREEN_W/2, y, 1); // Left Aligned
 
 
-  // tft.pushImage(10, 10, 100, 200, simba);
-
-  // tft.pushImage(0,0, 215,170, pumbaa_asleep);
-  tft.pushImage(0,0, 200,230, pumbaa_hat);
-
-  //tft.image(logo, x, y);
 }
 
 
