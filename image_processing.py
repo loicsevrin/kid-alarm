@@ -10,12 +10,12 @@ img_src = iio.imread(uri=filename+"_200.jpg")
 
 print(img_src.shape)
 
-(w,h,c) = img_src.shape
+(h,w,c) = img_src.shape
 
 c_array = "uint16_t "+filename+"[] = {"
 image_size_divider = 1
-for j in range(0,h,image_size_divider):
-    for i in range(0,w,image_size_divider):
+for i in range(0,h,image_size_divider):
+    for j in range(0,w,image_size_divider):
         # print(pixel)
         r = round(img_src[i,j,0] / 255 * 7)
         g = round(img_src[i,j,1] / 255 * 7)

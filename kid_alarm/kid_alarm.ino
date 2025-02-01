@@ -16,7 +16,6 @@
 
 #include <SPI.h>
 
-#include "simba.h"
 #include "pumbaa_asleep.h"
 #include "pumbaa_hat.h"
 
@@ -113,7 +112,7 @@ void setup() {
   // tft.pushImage(10, 10, 100, 200, simba);
 
   // tft.pushImage(0,0, 215,170, pumbaa_asleep);
-  tft.pushImage(0,0, 230,200, pumbaa_hat);
+  tft.pushImage(0,0, 200,230, pumbaa_hat);
 
   //tft.image(logo, x, y);
 }
