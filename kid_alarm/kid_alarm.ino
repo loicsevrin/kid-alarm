@@ -16,6 +16,12 @@
 
 #include <SPI.h>
 
+
+#include <Time.h>
+#include <NTPClient.h>
+#include <WiFi.h>
+#include <WiFiUdp.h>
+
 #include ".env.h"
 #include "pumbaa_asleep.h"
 #include "pumbaa_hat.h"
@@ -36,10 +42,13 @@
 // Can be installed from the library manager (Search for "TFT_eSPI")
 // https://github.com/Bodmer/TFT_eSPI
 
-#include <WiFi.h>
 
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
+WiFiUDP ntpUDP;
+// By default 'pool.ntp.org' is used with 60 seconds update interval and
+// no offset
+NTPClient timeClient(ntpUDP);
 // ----------------------------
 // Touch Screen pins
 // ----------------------------
@@ -106,7 +115,30 @@ void setup() {
   // you're connected now, so print out the data:
   Serial.print("You're connected to the network");
 
+  timeClient.begin();
+  
+  timeClient.setTimeOffset(3600);
+  
 }
 
+
 void loop() {
+  timeClient.update();
+
+  Serial.println(timeClient.getFormattedTime());
+
+  time_t cet = timeClient.getEpochTime();
+
+  // int day_of_week = ((cet / (3600*24)) + 4) % 7;
+  Serial.println("day");
+  Serial.println(timeClient.getDay());
+
+  Serial.println("hour");
+  Serial.println(timeClient.getHours());
+
+  Serial.println("minutes");
+  Serial.println(timeClient.getMinutes());
+
+
+  delay(5000);
 }
