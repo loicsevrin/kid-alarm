@@ -16,6 +16,7 @@
 
 #include <SPI.h>
 
+#include ".env.h"
 #include "pumbaa_asleep.h"
 #include "pumbaa_hat.h"
 
@@ -35,6 +36,9 @@
 // Can be installed from the library manager (Search for "TFT_eSPI")
 // https://github.com/Bodmer/TFT_eSPI
 
+#include <WiFi.h>
+
+int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
 // ----------------------------
 // Touch Screen pins
@@ -53,6 +57,9 @@
 #define SCREEN_W 240
 #define SCREEN_H 320
 
+void printWifiData();
+void printCurrentNet();
+
 XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
 
 TFT_eSPI tft = TFT_eSPI();
@@ -64,11 +71,10 @@ void setup() {
 
   tft.init();
   tft.setRotation(0); //This is the display in landscape
-  
+  #if 0
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
   
-
   tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
   tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
 
@@ -82,29 +88,24 @@ void setup() {
   tft.drawString("SAMEDI", SCREEN_W/2, y, 1); // Left Aligned
   y += line_height;
   tft.drawString("14:50", SCREEN_W/2, y, 1); // Left Aligned
+  #endif
 
+  // Connect to WPA/WPA2 network:
+  Serial.println("Attempting to connect to WPA SSID: ");
+  Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, pass);
 
-}
-
-
-void drawButtons() {
-  uint16_t bWidth = TFT_HEIGHT/3;
-  uint16_t bHeight = TFT_WIDTH/2;
-  // Generate buttons with different size X deltas
-  for (int i = 0; i < 6; i++) {
-    key[i].initButton(&tft,
-                      bWidth * (i%3) + bWidth/2,
-                      bHeight * (i/3) + bHeight/2,
-                      bWidth,
-                      bHeight,
-                      TFT_BLACK, // Outline
-                      TFT_BLUE, // Fill
-                      TFT_BLACK, // Text
-                      "",
-                      1);
-
-    key[i].drawButton(false, String(i+1));
+  delay(5000);  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(5000);
+    Serial.println("wifi status");
+    Serial.println(WiFi.status());
   }
+
+  // you're connected now, so print out the data:
+  Serial.print("You're connected to the network");
+
 }
 
 void loop() {
