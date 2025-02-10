@@ -135,6 +135,15 @@ void update_screen() {
   tft.drawString(time_str, SCREEN_W/2, y, 1); // Left Aligned
 }
 
+void initBrightness() {
+    pinMode(21, OUTPUT);
+}
+
+void setBrightness(int percent) {
+  int command = percent * 255 / 100;
+  analogWrite(21, command);
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -160,7 +169,9 @@ void setup() {
   timeClient.begin();
   
   timeClient.setTimeOffset(3600);
-  
+
+  initBrightness();
+  setBrightness(20);
 }
 
 
