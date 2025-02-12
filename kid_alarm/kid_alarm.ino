@@ -21,10 +21,12 @@
 #include <NTPClient.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <PNGdec.h>
 
 #include ".env.h"
 #include "pumbaa_asleep.h"
 #include "pumbaa_hat.h"
+
 
 // ----------------------------
 // Additional Libraries - each one of these will need to be installed.
@@ -68,6 +70,7 @@ NTPClient timeClient(ntpUDP);
 
 void printWifiData();
 void printCurrentNet();
+void pngDraw(PNGDRAW *pDraw);
 
 XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
 
@@ -75,7 +78,24 @@ TFT_eSPI tft = TFT_eSPI();
 
 TFT_eSPI_Button key[6];
 
+PNG png; // PNG decoder instance
+
 void display_awake() {
+
+  int16_t rc = png.openFLASH((uint8_t *)pumbaa_hat, sizeof(pumbaa_hat), pngDraw);
+  if (rc == PNG_SUCCESS) {
+    Serial.println("Successfully opened png file");
+    Serial.printf("image specs: (%d x %d), %d bpp, pixel type: %d\n", png.getWidth(), png.getHeight(), png.getBpp(), png.getPixelType());
+    tft.startWrite();
+    uint32_t dt = millis();
+    rc = png.decode(NULL, 0);
+    Serial.print(millis() - dt); Serial.println("ms");
+    tft.endWrite();
+    // png.close(); // not needed for memory->memory decode
+  }
+  delay(3000);
+  tft.fillScreen(random(0x10000));
+
   tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
 }
 
@@ -142,6 +162,19 @@ void initBrightness() {
 void setBrightness(int percent) {
   int command = percent * 255 / 100;
   analogWrite(21, command);
+}
+
+//=========================================v==========================================
+//                                      pngDraw
+//====================================================================================
+// This next function will be called during decoding of the png file to
+// render each image line to the TFT.  If you use a different TFT library
+// you will need to adapt this function to suit.
+// Callback function to draw pixels to the display
+void pngDraw(PNGDRAW *pDraw) {
+  uint16_t lineBuffer[MAX_IMAGE_WIDTH];
+  png.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+  tft.pushImage(xpos, ypos + pDraw->y, pDraw->iWidth, 1, lineBuffer);
 }
 
 void setup() {
