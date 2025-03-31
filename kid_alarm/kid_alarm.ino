@@ -151,6 +151,11 @@ int getTimeOffsetSeconds() {
   String location_x = "4.8";
   String location_y = "45.5";
 
+  bool res = timeClient.update();
+  if (!res) {
+    Serial.println("Failed to update time in get time offset");
+  }
+
   long int timestamp = (long int) timeClient.getEpochTime();
 
   HTTPClient http;
@@ -184,13 +189,8 @@ int getTimeOffsetSeconds() {
   return offset_s; 
 }
 
-void setup() {
-  Serial.begin(115200);
-
-  tft.init();
-  tft.setRotation(0); //This is the display in landscape
-
-  // Connect to WPA/WPA2 network:
+void connectToWifi() {
+    // Connect to WPA/WPA2 network:
   Serial.println("Attempting to connect to WPA SSID: ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
@@ -205,21 +205,47 @@ void setup() {
 
   // you're connected now, so print out the data:
   Serial.println("You're connected to the network");
+}
+
+
+
+void setup() {
+  Serial.begin(115200);
+
+  tft.init();
+  tft.setRotation(0); //This is the display in landscape
+
+  connectToWifi();
 
   timeClient.begin();
   
-  timeClient.update();
-
   timeClient.setTimeOffset(getTimeOffsetSeconds());
 
   initBrightness();
   setBrightness(20);
+
+  WiFi.disconnect();
 }
 
 
 void loop() {
-  timeClient.update();
+  static int i = 0;
+  i++;
+  int delay_hours = 12;
+  int hours = timeClient.getHours();
+  if(i > 3 * 60 * delay_hours && hours > 10 && hours < 18) {
+    i = 0;
+    connectToWifi();
 
+    bool res = timeClient.update();
+    if (!res) {
+      Serial.println("Failed to update time");
+    } else {
+      Serial.println("Time updated");
+    }
+
+    WiFi.disconnect();
+  }
   Serial.println(timeClient.getFormattedTime());
 
   update_screen();
