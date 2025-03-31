@@ -22,6 +22,9 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
 #include ".env.h"
 #include "pumbaa_asleep.h"
 #include "pumbaa_hat.h"
@@ -86,8 +89,6 @@ void display_asleep() {
 
 void update_screen() {
 
-  time_t cet = timeClient.getEpochTime();
-
   int day = timeClient.getDay()%7;
   int hours = timeClient.getHours();
   int minutes = timeClient.getMinutes();
@@ -144,6 +145,45 @@ void setBrightness(int percent) {
   analogWrite(21, command);
 }
 
+int getTimeOffsetSeconds() {
+  int offset_s = 3600; // Default offset for CET (Central European Time)
+
+  String location_x = "4.8";
+  String location_y = "45.5";
+
+  long int timestamp = (long int) timeClient.getEpochTime();
+
+  HTTPClient http;
+  char url[512];
+  sprintf(url, 
+    "https://maps.googleapis.com/maps/api/timezone/json?location=%s,%s&timestamp=%d&key=%s",
+    location_y, 
+    location_x,
+    timestamp,
+    google_api_key);
+  Serial.println(url);
+  http.begin(url);
+  int httpCode = http.GET();
+
+  if (httpCode == HTTP_CODE_OK) {
+    String payload = http.getString();
+    Serial.println(payload);
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      offset_s = doc["rawOffset"].as<int>() + doc["dstOffset"].as<int>();
+    } else {
+      Serial.println("Failed to parse JSON");
+    }
+  } else {
+    Serial.println("HTTP request failed");
+  }
+
+  http.end();
+  return offset_s; 
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -164,11 +204,13 @@ void setup() {
   }
 
   // you're connected now, so print out the data:
-  Serial.print("You're connected to the network");
+  Serial.println("You're connected to the network");
 
   timeClient.begin();
   
-  timeClient.setTimeOffset(3600);
+  timeClient.update();
+
+  timeClient.setTimeOffset(getTimeOffsetSeconds());
 
   initBrightness();
   setBrightness(20);
