@@ -96,7 +96,7 @@ void update_screen() {
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
   if(day>=1 || day<=4) { // monday to thursday
-    if (time > 6.50 && time < 19.45) {
+    if (time > 6.50 && time < 19.30) {
       display_awake();      
     } else {
       display_asleep();
