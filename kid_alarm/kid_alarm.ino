@@ -208,6 +208,22 @@ void connectToWifi() {
 }
 
 
+const int buzzer_gpio = 22;
+
+void ring() {
+  for(int i=0; i<100; i++) {
+  tone(buzzer_gpio, 1000);   // 1 kHz tone
+  Serial.println("buzzer 1000");
+  delay(500);
+  tone(buzzer_gpio, 2000);   // 2 kHz tone
+  Serial.println("buzzer 2000");
+  delay(500);
+  noTone(buzzer_gpio);       // silence
+  Serial.println("pause buzzer");
+  delay(1000);
+  }
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -229,6 +245,9 @@ void setup() {
 
 
 void loop() {
+  
+  // ring();
+
   static int i = 0;
   i++;
   int delay_hours = 12;
