@@ -210,14 +210,116 @@ void connectToWifi() {
 
 const int buzzer_gpio = 22;
 
+void play1(char *note, int nb_demi_temps) {
+  // mettre le la en bas
+  int freq = 2000;
+  if(strcmp(note, "do") == 0) {
+    freq = 261;
+  } else if(strcmp(note, "re") == 0) {
+    freq = 293;
+  } else if(strcmp(note, "mi") == 0) {
+    freq = 329;
+  } else if(strcmp(note, "fa") == 0) {
+    freq = 349;
+  } else if(strcmp(note, "sol") == 0) {
+    freq = 392;
+  } else if(strcmp(note, "la") == 0) {
+    freq = 440;
+  } else if(strcmp(note, "si") == 0) {
+    freq = 493;
+  }
+  tone(buzzer_gpio, freq);   // 1 kHz tone
+  // Serial.println("buzzer %s %d", note, freq);
+  int base_temps_ms = 200;
+  delay(nb_demi_temps * base_temps_ms);
+  noTone(buzzer_gpio);   // 1 kHz tone
+  delay(base_temps_ms / 5);
+}
+
+
+
+void play(char *note, int nb_demi_temps) {
+  int freq = 2000;
+  if(strcmp(note, "la") == 0) {
+    freq = 220;
+  } else if(strcmp(note, "si") == 0) {
+    freq = 246;
+  } else if(strcmp(note, "do") == 0) {
+    freq = 261;
+  } else if(strcmp(note, "re") == 0) {
+    freq = 293;
+  } else if(strcmp(note, "mi") == 0) {
+    freq = 329;
+  } else if(strcmp(note, "fa") == 0) {
+    freq = 349;
+  } else if(strcmp(note, "sol") == 0) {
+    freq = 392;
+  }
+  if(strcmp(note, "") != 0) {
+   tone(buzzer_gpio, freq);   // 1 kHz tone
+  }
+  // Serial.println("buzzer %s %d", note, freq);
+  int base_temps_ms = 200;
+  delay(nb_demi_temps * base_temps_ms);
+  noTone(buzzer_gpio);   // 1 kHz tone
+  delay(base_temps_ms / 5);
+}
+
+
+
+
+void magic() {
+  play("la", 2);
+  play("la", 1);
+  play("do", 1);
+  play("do", 1);
+  play("mi", 1);
+  play("mi", 1);
+  play("fa", 2);
+  play("", 1);
+  play("fa", 1);
+  play("fa", 1);
+  play("fa", 1);
+  play("re", 1);
+  play("re", 1);
+  play("mi", 1);
+  play("mi", 1);
+  play("mi", 1);
+  play("mi", 1);
+  play("mi", 2);
+  play("do", 2);
+  play("re", 2);
+  play("", 1);
+  play("re", 1);
+  play("re", 1);
+  play("mi", 1);
+  play("re", 1);
+  play("do", 1);
+  play("la", 1);
+}
+
 void ring() {
   for(int i=0; i<100; i++) {
-  tone(buzzer_gpio, 1000);   // 1 kHz tone
-  Serial.println("buzzer 1000");
-  delay(500);
-  tone(buzzer_gpio, 2000);   // 2 kHz tone
-  Serial.println("buzzer 2000");
-  delay(500);
+    play("do", 200);
+    play("re", 200);
+    play("mi", 200);
+    play("fa", 200);
+    play("sol", 200);
+    play("la", 200);
+    play("si", 200);
+    
+  // tone(buzzer_gpio, 400);   // 1 kHz tone
+  // Serial.println("buzzer 400");
+  // delay(200);
+  // tone(buzzer_gpio, 600);   // 1 kHz tone
+  // Serial.println("buzzer 600");
+  // delay(200);
+  // tone(buzzer_gpio, 1000);   // 1 kHz tone
+  // Serial.println("buzzer 1000");
+  // delay(200);
+  // tone(buzzer_gpio, 2000);   // 2 kHz tone
+  // Serial.println("buzzer 2000");
+  // delay(200);
   noTone(buzzer_gpio);       // silence
   Serial.println("pause buzzer");
   delay(1000);
@@ -247,7 +349,10 @@ void setup() {
 void loop() {
   
   // ring();
-
+  for(int i=0; i<100; i++) {
+    magic();
+    delay(1000);
+  }
   static int i = 0;
   i++;
   int delay_hours = 12;
