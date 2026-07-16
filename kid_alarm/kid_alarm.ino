@@ -78,14 +78,33 @@ TFT_eSPI tft = TFT_eSPI();
 
 TFT_eSPI_Button key[6];
 
+#define awake_status_unknown 0 
+#define awake_status_awake 1 
+#define awake_status_asleep 2 
+
+int awake_status = awake_status_unknown;
+
 void display_awake() {
   tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
+  if (awake_status == awake_status_asleep) {
+    play_alarm();
+  }
+  awake_status = awake_status_awake;
 }
 
 void display_asleep() {
   tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
+  if (awake_status == awake_status_awake) {
+  }
+  awake_status = awake_status_asleep;
 }
 
+void play_alarm() {
+  for(int i=0; i<3; i++) {
+    magic();
+    delay(1000);
+  }
+}
 
 void update_screen() {
 
@@ -95,32 +114,23 @@ void update_screen() {
   float time = ((float) hours) + ((float) minutes) / 100.0;
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
-  if(day>=1 || day<=4) { // monday to thursday
-    if (time > 6.50 && time < 19.30) {
+  display_time();
+  if(day>=1 || day<=5) { // monday to thursday
+    if (time > 7.15 && time < 19.30) {
       display_awake();      
     } else {
       display_asleep();
     }
-  } else if(day == 0) { // sunday
-    if (time > 7.30 && time < 19.45) {
-      display_awake();      
-    } else {
-      display_asleep();
-    }  
-  } else if(day == 5) { // friday
-    if (time > 6.50 && time < 20.15) {
-      display_awake();      
-    } else {
-      display_asleep();
-    }  
-  } else if(day == 6) { // saturday
-    if (time > 7.30 && time < 20.15) {
+  } else if(day == 0 || day == 6) { // saturday & sunday
+    if (time > 9.00 && time < 19.30) {
       display_awake();      
     } else {
       display_asleep();
     }  
   }
+}
 
+void display_time() {
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextSize(3);
   tft.setTextDatum(BC_DATUM);
@@ -298,34 +308,6 @@ void magic() {
   play("la", 1);
 }
 
-void ring() {
-  for(int i=0; i<100; i++) {
-    play("do", 200);
-    play("re", 200);
-    play("mi", 200);
-    play("fa", 200);
-    play("sol", 200);
-    play("la", 200);
-    play("si", 200);
-    
-  // tone(buzzer_gpio, 400);   // 1 kHz tone
-  // Serial.println("buzzer 400");
-  // delay(200);
-  // tone(buzzer_gpio, 600);   // 1 kHz tone
-  // Serial.println("buzzer 600");
-  // delay(200);
-  // tone(buzzer_gpio, 1000);   // 1 kHz tone
-  // Serial.println("buzzer 1000");
-  // delay(200);
-  // tone(buzzer_gpio, 2000);   // 2 kHz tone
-  // Serial.println("buzzer 2000");
-  // delay(200);
-  noTone(buzzer_gpio);       // silence
-  Serial.println("pause buzzer");
-  delay(1000);
-  }
-}
-
 
 void setup() {
   Serial.begin(115200);
@@ -348,11 +330,6 @@ void setup() {
 
 void loop() {
   
-  // ring();
-  for(int i=0; i<100; i++) {
-    magic();
-    delay(1000);
-  }
   static int i = 0;
   i++;
   int delay_hours = 12;
