@@ -84,13 +84,19 @@ TFT_eSPI_Button key[6];
 
 int awake_status = awake_status_unknown;
 
-void display_awake() {
+void display_awake_alarm_on_wake_up() {
   tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
   if (awake_status == awake_status_asleep) {
     play_alarm();
   }
   awake_status = awake_status_awake;
 }
+
+void display_awake_no_alarm() {
+  tft.pushImage((SCREEN_W-130)/2,30, 130,150, pumbaa_hat);
+  awake_status = awake_status_awake;
+}
+
 
 void display_asleep() {
   tft.pushImage((SCREEN_W-119)/2,30, 119,150, pumbaa_asleep);
@@ -100,7 +106,7 @@ void display_asleep() {
 }
 
 void play_alarm() {
-  for(int i=0; i<3; i++) {
+  for(int i=0; i<5; i++) {
     magic();
     delay(1000);
   }
@@ -117,13 +123,13 @@ void update_screen() {
   display_time();
   if(day>=1 || day<=5) { // monday to thursday
     if (time > 7.15 && time < 19.30) {
-      display_awake();      
+      display_awake_alarm_on_wake_up();
     } else {
       display_asleep();
     }
   } else if(day == 0 || day == 6) { // saturday & sunday
     if (time > 9.00 && time < 19.30) {
-      display_awake();      
+      display_awake_no_alarm();      
     } else {
       display_asleep();
     }  
