@@ -72,7 +72,7 @@ NTPClient timeClient(ntpUDP);
 void printWifiData();
 void printCurrentNet();
 
-XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+XPT2046_Bitbang touchscreen(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -106,7 +106,7 @@ void display_asleep() {
 }
 
 void play_alarm() {
-  for(int i=0; i<5; i++) {
+  for(int i=0; i<3; i++) {
     magic();
     delay(1000);
   }
@@ -314,12 +314,33 @@ void magic() {
   play("la", 1);
 }
 
+void handle_touch() {
+  TouchPoint touch = touchscreen.getTouch();
+
+  static int consecutive_touch = 0;
+  // Display touches that have a pressure value (Z)
+  if (touch.zRaw != 0) {
+    consecutive_touch++;
+    Serial.print("consecutive touch: ");
+    Serial.println(consecutive_touch);
+    if (consecutive_touch > 4) {
+      Serial.println("alarm");
+      play_alarm();
+    }
+  } else {
+    consecutive_touch = 0;
+  }
+
+}
+
 
 void setup() {
   Serial.begin(115200);
 
   tft.init();
   tft.setRotation(0); //This is the display in landscape
+
+  touchscreen.begin();
 
   connectToWifi();
 
@@ -357,5 +378,8 @@ void loop() {
 
   update_screen();
 
-  delay(20*1000);
+  for(int touch_loop_id = 0; touch_loop_id < 20; touch_loop_id++) {
+    handle_touch();
+    delay(1*1000);
+  }
 }
