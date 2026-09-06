@@ -121,13 +121,13 @@ void update_screen() {
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
   display_time();
-  if(day>=1 || day<=5) { // monday to thursday
+  if(day>=1 && day<=5) { // monday to thursday
     if (time > 7.15 && time < 19.30) {
       display_awake_alarm_on_wake_up();
     } else {
       display_asleep();
     }
-  } else if(day == 0 || day == 6) { // saturday & sunday
+  } else { // if(day == 0 || day == 6) -> saturday & sunday
     if (time > 9.00 && time < 19.30) {
       display_awake_no_alarm();      
     } else {
