@@ -113,26 +113,31 @@ void play_alarm() {
 }
 
 void update_screen() {
-
-  int day = timeClient.getDay()%7;
+  int day = timeClient.getDay() % 7;
   int hours = timeClient.getHours();
   int minutes = timeClient.getMinutes();
-  float time = ((float) hours) + ((float) minutes) / 100.0;
+  float time = ((float)hours) + ((float)minutes) / 100.0;
   // Clear the screen before writing to it
   tft.fillScreen(TFT_BLACK);
   display_time();
-  if(day>=1 && day<=5) { // monday to thursday
+  if (day == 0 || day == 6) { // saturday & sunday
+    if (time > 9.00 && time < 19.30) {
+      display_awake_no_alarm();
+    } else {
+      display_asleep();
+    }
+  } else if (day == 3) { // wednesday
+    if (time > 7.45 && time < 19.30) {
+      display_awake_alarm_on_wake_up();
+    } else {
+      display_asleep();
+    }
+  } else { // if(day>=1 && day<=5) { // monday to friday (except wednesday)
     if (time > 7.15 && time < 19.30) {
       display_awake_alarm_on_wake_up();
     } else {
       display_asleep();
     }
-  } else { // if(day == 0 || day == 6) -> saturday & sunday
-    if (time > 9.00 && time < 19.30) {
-      display_awake_no_alarm();      
-    } else {
-      display_asleep();
-    }  
   }
 }
 
